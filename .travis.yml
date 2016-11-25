@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: IQiPg8d4yXntTQcQTQCaEAuChXUo379KMW40gYpeEOsryoKAzcoRBffo1tYrta5U5dTa6AdAo6bFeXVHqTOQmg7bpq+QYpus6q/I3sVoNjFmclzeZEL9OwjxP7GErxHRe9JArJakEzg62dCxOvXpCe2vEzt07xKUhOYy+dStJgNDiJifMKKcGns4sCqCHWQATMnIevxFwCvsPDO5pneKBvPWMn5MZ9DKKtD8kNLQrgQK8x4hMO7HJXxTdUKQYcVvl8ihPQhBVWwInmwmtBrLX/VROwHeJHw+BqAMt8vSmcGYpxxVnRctBhTItSQ/A98AIgxmlIG0GSQBKs4ln41P5xw85gVQE6Fw+I78KV0D/JNlprqTAK1gbEXI9ewbey6uJX+I5PD/ajN8njOxzXNLbJfEDZIrLc8WC0ygyXvczDgN+Y/aYtjfyhsUIVmSqq26IxY2YCnWXdzbspNTmeu2Aex39d7pZgOz+c50MXaEe17JDdGAy41bpVCrtT6sQWE0lA42xM+JgJqeulbQH67+vsa066s0HtTWFt+Ti4asSfNvKoPPgfy6wBrzL7k6lILbgH/KrXYLh2Sj8+CjbI8yhf3vC+rWNxBTGbJXngghVZCO6XXxvDfPN0pz7n9JCnBXv3Ah9793jSPa5uA9Rvcr7nTifh8VFeZ4tMeMY7j8J/I=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Reina-Valera-New-Testament-of-the-Bible-1862_5879
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
